@@ -25,7 +25,8 @@ export default function KaraokePlayer({
   isVerse1Mode,
   onControlAction, // callbacks
   onSongEnded,
-  onPlayerReadyState // to send player status back to App
+  onPlayerReadyState, // to send player status back to App
+  onEmbedError // called when video embed is blocked (101/150)
 }) {
   const playerRef = useRef(null);
   const iframeWrapperId = 'boraebang-yt-player';
@@ -111,7 +112,10 @@ export default function KaraokePlayer({
           onError: (event) => {
             console.error('YouTube Player Error:', event.data);
             if (event.data === 101 || event.data === 150) {
-              alert('⚠️ 이 영상은 저작권자(TJ/KY)의 정책에 의해 이 도메인(github.io)에서의 재생이 차단되었습니다.\n\n하단의 [유튜브 직접 검색] 탭에서 다른 채널의 반주 영상을 검색해 예약해 주세요!');
+              // Embedding disabled: notify App to try next video
+              if (typeof onEmbedError === 'function') {
+                onEmbedError(currentSong);
+              }
             } else {
               console.warn('YouTube Player non-blocking error code:', event.data);
             }

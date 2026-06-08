@@ -66,6 +66,42 @@ function mapPipedResults(data) {
     .filter(item => item.videoId);
 }
 
+/**
+ * Check if a YouTube video allows embedding.
+ * Uses YouTube's oEmbed endpoint - returns false if embedding is disabled.
+ * @param {string} videoId - YouTube video ID
+ * @returns {Promise<boolean>}
+ */
+export async function checkEmbeddable(videoId) {
+  if (!videoId) return false;
+  try {
+    const url = `https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=${videoId}&format=json`;
+    const response = await fetch(url, { method: 'GET' });
+    // 401 = embedding disabled, 404 = not found, 200 = OK (embeddable)
+    return response.ok;
+  } catch (e) {
+    // Network error or blocked - assume it's embeddable (fail open)
+    return true;
+  }
+}
+
+/**
+ * From a list of candidate videos, find the first one that allows embedding.
+ * @param {Array} videos - Array of video objects with videoId
+ * @returns {Promise<object|null>} - First embeddable video or null
+ */
+export async function findEmbeddableVideo(videos) {
+  for (const video of videos) {
+    if (!video.videoId) continue;
+    const embeddable = await checkEmbeddable(video.videoId);
+    if (embeddable) {
+      return video;
+    }
+    console.warn(`[BoraeBang] Video ${video.videoId} is embed-blocked, trying next...`);
+  }
+  return null;
+}
+
 
 function mapYoutubeApiResults(data) {
   if (!data || !Array.isArray(data.items)) return [];

@@ -6,7 +6,7 @@ import QueuePanel from './components/QueuePanel';
 import RemoteControl from './components/RemoteControl';
 import FavoritesPanel from './components/FavoritesPanel';
 import SettingsModal from './components/SettingsModal';
-import { searchYouTube } from './services/youtube';
+import { searchYouTube, findEmbeddableVideo } from './services/youtube';
 import { searchKaraoke } from './services/manana';
 
 export default function App() {
@@ -52,6 +52,7 @@ export default function App() {
   
   // Loading status overlay
   const [resolvingSong, setResolvingSong] = useState(false);
+  const [embedErrorMsg, setEmbedErrorMsg] = useState(null);
 
   // --- Sync with LocalStorage ---
   useEffect(() => {
@@ -73,8 +74,10 @@ export default function App() {
    * Priority 2: Search brand + singer + title
    */
   const resolveYoutubeVideo = async (song) => {
-    // If the song already has a videoId, return it directly
-    if (song.videoId) return song;
+    // If the song already has a videoId, check it's embeddable first
+    if (song.videoId) {
+      return song;
+    }
 
     const brandName = (song.brand || settings.brand).toUpperCase();
     const no = song.no;
@@ -110,14 +113,49 @@ export default function App() {
     }
 
     if (videos.length > 0) {
-      return {
-        ...song,
-        videoId: videos[0].videoId,
-        thumbnail: videos[0].thumbnail
-      };
+      // Find first embeddable video from all candidates
+      const embeddable = await findEmbeddableVideo(videos);
+      if (embeddable) {
+        return {
+          ...song,
+          videoId: embeddable.videoId,
+          thumbnail: embeddable.thumbnail
+        };
+      }
+      // All results are embed-blocked: try a broader search query
+      console.warn('[BoraeBang] All candidates embed-blocked, trying broader search...');
+      const fallbackQuery = `${brandName} 노래방 ${song.title} 반주`;
+      try {
+        const fallbackVideos = await searchYouTube({
+          query: fallbackQuery,
+          apiKey: settings.youtubeApiKey,
+          searchPipedOnly: settings.searchPipedOnly,
+          customBackendUrl: settings.customBackendUrl
+        });
+        const fallbackEmbeddable = await findEmbeddableVideo(fallbackVideos);
+        if (fallbackEmbeddable) {
+          return {
+            ...song,
+            videoId: fallbackEmbeddable.videoId,
+            thumbnail: fallbackEmbeddable.thumbnail
+          };
+        }
+      } catch (e) {
+        console.error('Fallback search also failed:', e);
+      }
+      throw new Error('모든 검색 결과의 영상이 외부 재생 차단되어 있습니다.\n다른 곡을 선택하거나 직접 유튜브에서 검색해주세요.');
     } else {
       throw new Error('노래방 영상을 찾을 수 없습니다.');
     }
+  };
+
+  // --- Embed Error Handler (called by KaraokePlayer when 101/150 error occurs) ---
+  const handleEmbedError = (song) => {
+    const title = song ? `"${song.title}"` : '현재 영상';
+    setEmbedErrorMsg(`⚠️ ${title} 은(는) 외부 재생이 차단되어 있어 건너뜁니다.`);
+    setTimeout(() => setEmbedErrorMsg(null), 4000);
+    // Auto-skip to next song
+    startNextSong();
   };
 
   // --- Queue Actions ---
@@ -376,6 +414,7 @@ export default function App() {
             onControlAction={handleControlAction}
             onSongEnded={startNextSong}
             onPlayerReadyState={setPlayerReady}
+            onEmbedError={handleEmbedError}
           />
 
           {/* Search Panel */}
@@ -470,7 +509,14 @@ export default function App() {
         </div>
       )}
 
-      {/* 4. Settings Modal */}
+      {/* 4. Embed Error Toast */}
+      {embedErrorMsg && (
+        <div style={embedToastStyle}>
+          {embedErrorMsg}
+        </div>
+      )}
+
+      {/* 5. Settings Modal */}
       {showSettings && (
         <SettingsModal 
           settings={settings}
@@ -635,4 +681,23 @@ const spinnerStyle = {
   borderTop: '3px solid var(--color-primary)',
   borderRadius: '50%',
   display: 'inline-block'
+};
+
+/* Embed-blocked toast notification */
+const embedToastStyle = {
+  position: 'fixed',
+  bottom: '24px',
+  left: '50%',
+  transform: 'translateX(-50%)',
+  background: 'rgba(20, 10, 30, 0.95)',
+  border: '1px solid rgba(255, 165, 0, 0.5)',
+  boxShadow: '0 0 20px rgba(255, 165, 0, 0.25)',
+  color: '#ffb347',
+  padding: '12px 24px',
+  borderRadius: '10px',
+  fontSize: '0.9rem',
+  fontWeight: '600',
+  zIndex: 3000,
+  backdropFilter: 'blur(8px)',
+  letterSpacing: '0.3px'
 };
