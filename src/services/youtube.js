@@ -65,6 +65,42 @@ function mapYoutubeApiResults(data) {
 /**
  * Search YouTube using Piped API (with rotation fallback)
  */
+/**
+ * Helper to fetch data by bypassing CORS using public CORS proxies.
+ */
+async function fetchWithCorsProxy(targetUrl, options = {}) {
+  const proxies = [
+    // Option 0: Direct fetch (fastest)
+    (url) => url,
+    // Option 1: corsproxy.io (Very fast, stable)
+    (url) => `https://corsproxy.io/?${encodeURIComponent(url)}`,
+    // Option 2: allorigins.win (Reliable fallback)
+    (url) => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`
+  ];
+
+  let lastError = null;
+
+  for (let i = 0; i < proxies.length; i++) {
+    const proxiedUrl = proxies[i](targetUrl);
+    try {
+      const response = await fetch(proxiedUrl, options);
+      if (response.ok) {
+        return await response.json();
+      }
+      throw new Error(`HTTP status ${response.status}`);
+    } catch (err) {
+      lastError = err;
+      console.warn(`Fetch failed with proxy option ${i} (${proxiedUrl}):`, err.message);
+      // Continue loop to try next proxy
+    }
+  }
+
+  throw lastError || new Error('All CORS proxy options failed');
+}
+
+/**
+ * Search YouTube using Piped API (with rotation fallback and CORS proxies)
+ */
 async function searchWithPiped(query, attempt = 0) {
   if (attempt >= PIPED_INSTANCES.length) {
     throw new Error('All Piped instances failed to respond.');
@@ -75,18 +111,14 @@ async function searchWithPiped(query, attempt = 0) {
 
   try {
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 6000); // 6s timeout for fast failure
+    const timeoutId = setTimeout(() => controller.abort(), 8000); // 8s timeout for proxy chains
 
-    const response = await fetch(url, { signal: controller.signal });
+    const data = await fetchWithCorsProxy(url, { signal: controller.signal });
     clearTimeout(timeoutId);
 
-    if (!response.ok) throw new Error(`HTTP ${response.status}`);
-    
-    const data = await response.json();
     const mapped = mapPipedResults(data);
     
     if (mapped.length === 0) {
-      // Sometimes instances return empty or error objects inside 200 OK
       throw new Error('Empty results or invalid response format');
     }
     return mapped;
@@ -144,14 +176,11 @@ export async function getSearchSuggestions(query, attempt = 0) {
 
   try {
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 3000); // 3s timeout
+    const timeoutId = setTimeout(() => controller.abort(), 4000); // 4s timeout
 
-    const response = await fetch(url, { signal: controller.signal });
+    const data = await fetchWithCorsProxy(url, { signal: controller.signal });
     clearTimeout(timeoutId);
 
-    if (!response.ok) throw new Error(`HTTP ${response.status}`);
-    
-    const data = await response.json();
     return Array.isArray(data) ? data : [];
   } catch (error) {
     console.error(`Piped suggestions failed on ${currentInstance}:`, error.message);
