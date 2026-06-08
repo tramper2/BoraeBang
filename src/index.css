@@ -1,0 +1,264 @@
+:root {
+  /* Color Palette */
+  --bg-darker: #05050d;
+  --bg-dark: #0c0b1e;
+  --bg-card: rgba(18, 16, 38, 0.7);
+  --bg-glass: rgba(20, 18, 43, 0.5);
+  
+  --color-primary: #ff007f; /* Neon Pink */
+  --color-secondary: #00f0ff; /* Neon Cyan */
+  --color-accent: #ffe600; /* Neon Yellow */
+  --color-success: #39ff14; /* Neon Green */
+  
+  --text-primary: #ffffff;
+  --text-secondary: #a0aec0;
+  --text-muted: #64748b;
+  
+  --font-digital: 'Orbitron', monospace;
+  --font-sans: 'Inter', 'Noto Sans KR', sans-serif;
+  
+  --glow-pink: 0 0 10px rgba(255, 0, 127, 0.6), 0 0 20px rgba(255, 0, 127, 0.3);
+  --glow-cyan: 0 0 10px rgba(0, 240, 255, 0.6), 0 0 20px rgba(0, 240, 255, 0.3);
+  --glow-green: 0 0 10px rgba(57, 255, 20, 0.6), 0 0 20px rgba(57, 255, 20, 0.3);
+  --glow-yellow: 0 0 10px rgba(255, 230, 0, 0.6), 0 0 20px rgba(255, 230, 0, 0.3);
+  
+  --shadow-glass: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
+  --border-glass: 1px solid rgba(255, 255, 255, 0.08);
+  --border-neon-pink: 1px solid rgba(255, 0, 127, 0.4);
+  --border-neon-cyan: 1px solid rgba(0, 240, 255, 0.4);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-primary) var(--bg-dark);
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg-darker);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-primary);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-secondary);
+}
+
+body {
+  font-family: var(--font-sans);
+  background-color: var(--bg-darker);
+  background-image: 
+    radial-gradient(at 0% 0%, rgba(255, 0, 127, 0.08) 0, transparent 50%),
+    radial-gradient(at 100% 0%, rgba(0, 240, 255, 0.08) 0, transparent 50%),
+    radial-gradient(at 50% 100%, rgba(18, 16, 38, 0.8) 0, var(--bg-darker) 100%);
+  background-attachment: fixed;
+  color: var(--text-primary);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+#root {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Glassmorphism Wrapper */
+.glass-panel {
+  background: var(--bg-card);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: var(--border-glass);
+  border-radius: 16px;
+  box-shadow: var(--shadow-glass);
+  transition: all 0.3s ease;
+}
+
+.glass-panel:hover {
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+/* Neon Text utilities */
+.text-neon-pink {
+  color: var(--color-primary);
+  text-shadow: var(--glow-pink);
+}
+
+.text-neon-cyan {
+  color: var(--color-secondary);
+  text-shadow: var(--glow-cyan);
+}
+
+.text-neon-yellow {
+  color: var(--color-accent);
+  text-shadow: var(--glow-yellow);
+}
+
+/* Neon Button */
+.btn-neon {
+  background: transparent;
+  color: #fff;
+  border: 1px solid var(--color-primary);
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.btn-neon:hover {
+  background: var(--color-primary);
+  box-shadow: var(--glow-pink);
+  transform: translateY(-2px);
+}
+
+.btn-neon-cyan {
+  border-color: var(--color-secondary);
+}
+
+.btn-neon-cyan:hover {
+  background: var(--color-secondary);
+  box-shadow: var(--glow-cyan);
+  color: var(--bg-darker);
+}
+
+/* Input Styles */
+.input-neon {
+  background: rgba(5, 5, 13, 0.6);
+  border: var(--border-glass);
+  color: #fff;
+  padding: 12px 16px;
+  border-radius: 8px;
+  font-size: 1rem;
+  outline: none;
+  transition: all 0.3s ease;
+  width: 100%;
+}
+
+.input-neon:focus {
+  border-color: var(--color-secondary);
+  box-shadow: var(--glow-cyan);
+}
+
+/* Tab Styles */
+.tab-container {
+  display: flex;
+  gap: 8px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  padding-bottom: 10px;
+}
+
+.tab-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  padding: 8px 16px;
+  font-weight: 500;
+  cursor: pointer;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+}
+
+.tab-btn.active {
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--color-secondary);
+  text-shadow: 0 0 8px rgba(0, 240, 255, 0.4);
+}
+
+.tab-btn:hover:not(.active) {
+  color: #fff;
+}
+
+/* CRT Screen Effects */
+.crt-screen {
+  position: relative;
+  background: #000;
+  overflow: hidden;
+  border-radius: 12px;
+  border: 4px solid #1a1a2e;
+  box-shadow: inset 0 0 40px rgba(0, 0, 0, 0.9), 0 0 20px rgba(0, 240, 255, 0.15);
+}
+
+/* Scanline animation */
+.crt-screen::after {
+  content: " ";
+  display: block;
+  position: absolute;
+  top: 0; left: 0; bottom: 0; right: 0;
+  background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+  z-index: 10;
+  background-size: 100% 3px, 3px 100%;
+  pointer-events: none;
+}
+
+/* Standby blinking text */
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+
+.blink-text {
+  animation: blink 1.5s infinite;
+}
+
+/* Score animation overlay */
+@keyframes score-pop {
+  0% { transform: scale(0.3); opacity: 0; }
+  50% { transform: scale(1.1); }
+  70% { transform: scale(0.95); }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.score-overlay {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(5, 5, 13, 0.9);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  font-family: var(--font-digital);
+  animation: fadeIn 0.4s ease forwards;
+}
+
+.score-number {
+  font-size: 6rem;
+  font-weight: 900;
+  animation: score-pop 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+.score-message {
+  font-family: var(--font-sans);
+  font-size: 1.5rem;
+  margin-top: 20px;
+  color: #fff;
+  opacity: 0;
+  animation: fadeIn 0.4s ease 0.6s forwards;
+}
+
+@keyframes fadeIn {
+  to { opacity: 1; }
+}
+
+/* CRT Screen Flicker */
+@keyframes screen-flicker {
+  0% { opacity: 0.985; }
+  50% { opacity: 0.995; }
+  100% { opacity: 0.985; }
+}
+.crt-flicker {
+  animation: screen-flicker 0.15s infinite;
+}
