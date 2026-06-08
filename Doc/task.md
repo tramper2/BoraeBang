@@ -1,0 +1,24 @@
+# BoraeBang 개발 태스크 리스트 (완료)
+
+- [x] 패키지 설치 및 환경 구성
+  - [x] React, React-DOM, Vite 플러그인, Lucide-React, gh-pages 설치
+  - [x] `vite.config.js` 설정
+  - [x] `package.json` 스크립트 수정 및 git 원격 저장소 연동 설정
+- [x] 공통 리소스 및 서비스 구현
+  - [x] `index.html` 구성 및 폰트 로드
+  - [x] `src/index.css` 네온/다크 디자인 시스템 및 CRT 스캔라인 스타일 정의
+  - [x] `src/services/manana.js` 노래방 곡 검색 서비스 구현
+  - [x] `src/services/youtube.js` Piped API 유튜브 검색 및 인스턴스 로테이션 구현
+- [x] 핵심 컴포넌트 개발
+  - [x] `src/main.jsx` 진입점 설정
+  - [x] `src/App.jsx` 전체 상태 관리 및 레이아웃 조율
+  - [x] `src/components/KaraokePlayer.jsx` 유튜브 IFrame 플레이어 및 이벤트 연동
+  - [x] `src/components/SearchPanel.jsx` 곡 DB 및 유튜브 동영상 검색 패널
+  - [x] `src/components/RemoteControl.jsx` 네온 노래방 리모컨 인터페이스
+  - [x] `src/components/QueuePanel.jsx` 예약 대기열 목록 및 제어
+  - [x] `src/components/FavoritesPanel.jsx` 애창곡 리스트 관리
+  - [x] `src/components/SettingsModal.jsx` 설정 모달
+- [x] 로컬 검증 및 배포 준비
+  - [x] `npm run build` 빌드 검증
+  - [x] 로컬 실행 및 작동 테스트
+  - [x] git 및 gh-pages 배포 테스트 (`git@github.com:tramper2/BoraeBang.git`)
