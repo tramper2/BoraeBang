@@ -7,6 +7,7 @@ export default function SettingsModal({ settings, onSave, onClose }) {
   const [youtubeApiKey, setYoutubeApiKey] = useState(settings.youtubeApiKey || '');
   const [searchPipedOnly, setSearchPipedOnly] = useState(settings.searchPipedOnly || true);
   const [pipedInstance, setPipedInstance] = useState(settings.pipedInstance || getActivePipedInstance());
+  const [customBackendUrl, setCustomBackendUrl] = useState(settings.customBackendUrl || '');
   const [testStatus, setTestStatus] = useState({});
   const [testing, setTesting] = useState(false);
 
@@ -15,7 +16,8 @@ export default function SettingsModal({ settings, onSave, onClose }) {
       brand,
       youtubeApiKey,
       searchPipedOnly,
-      pipedInstance
+      pipedInstance,
+      customBackendUrl
     });
     onClose();
   };
@@ -124,6 +126,22 @@ export default function SettingsModal({ settings, onSave, onClose }) {
               <span style={descStyle}>공식 구글 유튜브 API를 사용하여 더 정확하고 안정적인 검색결과를 원할 시 등록합니다.</span>
             </div>
           )}
+
+          {/* Custom EC2 Backend Proxy */}
+          <div style={sectionStyle}>
+            <label style={labelStyle}>
+              🌐 자체 프록시 서버 URL (선택사항)
+            </label>
+            <input
+              type="text"
+              className="input-neon"
+              placeholder="http://your-ec2-ip:5000"
+              value={customBackendUrl}
+              onChange={(e) => setCustomBackendUrl(e.target.value)}
+              style={{ marginTop: '8px' }}
+            />
+            <span style={descStyle}>AWS EC2 등에 프록시 서버를 구축한 경우 해당 서버 주소를 입력합니다. (예: http://54.180.1.2:5000)</span>
+          </div>
 
           {/* Piped Instance List */}
           <div style={sectionStyle}>

@@ -147,9 +147,27 @@ async function searchWithOfficialApi(query, apiKey) {
 /**
  * Main Search Endpoint
  */
-export async function searchYouTube({ query, apiKey = null, searchPipedOnly = false }) {
+export async function searchYouTube({ query, apiKey = null, searchPipedOnly = false, customBackendUrl = null }) {
   const trimmed = query.trim();
   if (!trimmed) return [];
+
+  // If custom backend proxy is set, use it!
+  if (customBackendUrl) {
+    try {
+      const cleanUrl = customBackendUrl.replace(/\/$/, ''); // strip trailing slash
+      const url = `${cleanUrl}/api/search?q=${encodeURIComponent(trimmed)}`;
+      const response = await fetch(url);
+      if (response.ok) {
+        const data = await response.json();
+        if (data && Array.isArray(data.items)) {
+          return data.items;
+        }
+      }
+      console.warn('Custom backend failed, falling back to Piped...');
+    } catch (error) {
+      console.error('Custom backend error, falling back to Piped:', error.message);
+    }
+  }
 
   // Use official API if key is provided and not forced to use Piped
   if (apiKey && !searchPipedOnly) {
@@ -167,9 +185,23 @@ export async function searchYouTube({ query, apiKey = null, searchPipedOnly = fa
 /**
  * Get Autocomplete suggestions (from Piped or fallback to YouTube mock)
  */
-export async function getSearchSuggestions(query, attempt = 0) {
+export async function getSearchSuggestions(query, attempt = 0, customBackendUrl = null) {
   const trimmed = query.trim();
   if (!trimmed || trimmed.length < 2) return [];
+
+  // Use custom backend if provided
+  if (customBackendUrl) {
+    try {
+      const cleanUrl = customBackendUrl.replace(/\/$/, '');
+      const url = `${cleanUrl}/api/suggestions?q=${encodeURIComponent(trimmed)}`;
+      const response = await fetch(url);
+      if (response.ok) {
+        return await response.json();
+      }
+    } catch (e) {
+      // fallback to Piped
+    }
+  }
 
   const currentInstance = PIPED_INSTANCES[activeInstanceIndex];
   const url = `${currentInstance}/suggestions?query=${encodeURIComponent(trimmed)}`;

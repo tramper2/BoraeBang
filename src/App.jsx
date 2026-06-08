@@ -17,12 +17,17 @@ export default function App() {
     try { return JSON.parse(val); } catch (e) { return defaultVal; }
   };
 
-  const [settings, setSettings] = useState(() => loadStored('boraebang_settings', {
-    brand: 'tj',
-    youtubeApiKey: '',
-    searchPipedOnly: true,
-    pipedInstance: 'https://pipedapi.moomoo.me'
-  }));
+  const [settings, setSettings] = useState(() => {
+    const stored = loadStored('boraebang_settings', {});
+    return {
+      brand: 'tj',
+      youtubeApiKey: '',
+      searchPipedOnly: true,
+      pipedInstance: 'https://pipedapi.moomoo.me',
+      customBackendUrl: '',
+      ...stored
+    };
+  });
 
   const [favorites, setFavorites] = useState(() => loadStored('boraebang_favorites', []));
   const [history, setHistory] = useState(() => loadStored('boraebang_history', []));
@@ -81,7 +86,8 @@ export default function App() {
       videos = await searchYouTube({
         query: searchQuery,
         apiKey: settings.youtubeApiKey,
-        searchPipedOnly: settings.searchPipedOnly
+        searchPipedOnly: settings.searchPipedOnly,
+        customBackendUrl: settings.customBackendUrl
       });
     } catch (e) {
       console.warn('First query failed, trying search query 2...');
@@ -94,7 +100,8 @@ export default function App() {
         videos = await searchYouTube({
           query: searchQuery,
           apiKey: settings.youtubeApiKey,
-          searchPipedOnly: settings.searchPipedOnly
+          searchPipedOnly: settings.searchPipedOnly,
+          customBackendUrl: settings.customBackendUrl
         });
       } catch (e) {
         console.error('Failed to resolve video on both queries:', e);
@@ -249,7 +256,8 @@ export default function App() {
         const videos = await searchYouTube({
           query: searchQuery,
           apiKey: settings.youtubeApiKey,
-          searchPipedOnly: settings.searchPipedOnly
+          searchPipedOnly: settings.searchPipedOnly,
+          customBackendUrl: settings.customBackendUrl
         });
 
         if (videos.length > 0) {

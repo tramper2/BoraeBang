@@ -55,7 +55,8 @@ export default function SearchPanel({
         const data = await searchYouTube({ 
           query: searchQuery, 
           apiKey: settings.youtubeApiKey,
-          searchPipedOnly: settings.searchPipedOnly
+          searchPipedOnly: settings.searchPipedOnly,
+          customBackendUrl: settings.customBackendUrl
         });
         setResults(data);
       }
