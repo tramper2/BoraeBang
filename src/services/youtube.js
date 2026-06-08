@@ -38,17 +38,34 @@ function rotatePipedInstance() {
  * { videoId, title, thumbnail, author }
  */
 function mapPipedResults(data) {
-  if (!data || !Array.isArray(data.items)) return [];
+  const items = data.items || data.results || (Array.isArray(data) ? data : []);
+  if (!Array.isArray(items)) return [];
   
-  return data.items
-    .filter(item => item && item.type === 'video' && item.videoId)
-    .map(item => ({
-      videoId: item.videoId,
-      title: item.title,
-      thumbnail: item.thumbnail || `https://img.youtube.com/vi/${item.videoId}/mqdefault.jpg`,
-      author: item.author || 'YouTube'
-    }));
+  return items
+    .filter(item => item && (item.type === 'video' || item.type === 'stream'))
+    .map(item => {
+      let videoId = item.videoId;
+      if (!videoId && item.url) {
+        const match = item.url.match(/[?&]v=([^&]+)/);
+        if (match) {
+          videoId = match[1];
+        } else if (item.url.startsWith('/watch?v=')) {
+          videoId = item.url.substring('/watch?v='.length);
+        } else if (item.url.includes('/watch/')) {
+          videoId = item.url.split('/watch/')[1];
+        }
+      }
+      
+      return {
+        videoId: videoId || '',
+        title: item.title || '',
+        thumbnail: item.thumbnail || (videoId ? `https://img.youtube.com/vi/${videoId}/mqdefault.jpg` : ''),
+        author: item.author || item.uploaderName || 'YouTube'
+      };
+    })
+    .filter(item => item.videoId);
 }
+
 
 function mapYoutubeApiResults(data) {
   if (!data || !Array.isArray(data.items)) return [];
