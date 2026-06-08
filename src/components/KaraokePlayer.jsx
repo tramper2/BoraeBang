@@ -107,8 +107,17 @@ export default function KaraokePlayer({
             if (event.data === window.YT.PlayerState.ENDED) {
               triggerScoreScreen();
             }
+          },
+          onError: (event) => {
+            console.error('YouTube Player Error:', event.data);
+            if (event.data === 101 || event.data === 150) {
+              alert('⚠️ 이 영상은 저작권자(TJ/KY)의 정책에 의해 이 도메인(github.io)에서의 재생이 차단되었습니다.\n\n하단의 [유튜브 직접 검색] 탭에서 다른 채널의 반주 영상을 검색해 예약해 주세요!');
+            } else {
+              console.warn('YouTube Player non-blocking error code:', event.data);
+            }
           }
         }
+
       });
     } catch (err) {
       console.error('Failed to init YT player:', err);
