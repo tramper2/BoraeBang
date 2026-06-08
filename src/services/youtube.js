@@ -68,10 +68,17 @@ export function scoreKaraokeRelevance(title, author = '') {
     if (combined.includes(kw.toLowerCase())) score -= 20;
   }
 
-  // Official TJ / KY channels get a bonus
+  // Official TJ / KY / 금영 karaoke company channels are always embed-blocked
+  // (cannot play outside YouTube), so penalize them heavily to exclude from results
   const authorLower = author.toLowerCase();
-  if (authorLower.includes('tj') || authorLower.includes('금영') || authorLower.includes('ky')) {
-    score += 15;
+  if (
+    authorLower.includes('tj미디어') || authorLower.includes('tj media') ||
+    authorLower.includes('tj karaoke') || authorLower.includes('tj노래방') ||
+    authorLower === 'tj' || authorLower === 'tj media' ||
+    authorLower.includes('금영') || authorLower.includes('kumyoung') ||
+    authorLower.includes('ky노래방') || authorLower.includes('ky karaoke')
+  ) {
+    score -= 100;
   }
 
   return score;

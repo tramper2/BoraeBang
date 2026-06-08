@@ -44,3 +44,6 @@
   - [x] `mapPipedResults()` 내부에서 `filterAndRankKaraoke` 자동 적용
   - [x] `App.jsx` 4단계 검색 전략 도입 (MR 명시 → 반주 → 가수 MR → 브로드 폴백)
   - [x] `SearchPanel.jsx` 유튜브 직접 검색 쿼리를 `노래방 MR ${검색어}` 로 변경
+- [x] TJ/KY/금영 공식 채널 영상 검색 결과 완전 제외
+  - [x] `scoreKaraokeRelevance()`에서 TJ/KY/금영 공식 채널에 -100 페널티 부여 (기존 +15 보너스 → -100 페널티로 변경)
+  - [x] 공식 채널 영상은 외부 임베드가 전부 차단되어 재생 불가하므로 검색 단계에서부터 제외
