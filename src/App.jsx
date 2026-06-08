@@ -79,20 +79,21 @@ export default function App() {
       return song;
     }
 
-    const brandName = (song.brand || settings.brand).toUpperCase();
-    const no = song.no;
-
     // --- 4-stage search strategy (narrowest → broadest, MR-first) ---
-    // Stage 1: "[TJ] [번호] [제목] MR"  ← most precise, explicitly requests MR
-    // Stage 2: "[TJ] 노래방 [제목] 반주" ← brand + title + 반주
-    // Stage 3: "노래방 [가수] [제목] MR" ← no brand constraint
-    // Stage 4: "[TJ] 노래방 [제목]"      ← last resort (broadest)
+    // NOTE: Brand names (TJ/KY/금영) are intentionally excluded from search queries
+    //       because official karaoke company videos are embed-blocked and cannot play
+    //       outside YouTube. We search only with karaoke/MR keywords to find
+    //       user-uploaded playable instrumental videos.
+    // Stage 1: "[제목] [가수] MR 반주"  ← most precise, MR + 반주 explicit
+    // Stage 2: "노래방 [가수] [제목] MR" ← 노래방 + artist + MR
+    // Stage 3: "[가수] [제목] 반주 노래방" ← singer + title + 반주
+    // Stage 4: "노래방 [제목]"           ← last resort (broadest)
 
     const searchStrategies = [
-      `${brandName} ${no} ${song.title} MR`,
-      `${brandName} 노래방 ${song.title} 반주`,
+      `${song.title} ${song.singer} MR 반주`,
       `노래방 ${song.singer} ${song.title} MR`,
-      `${brandName} 노래방 ${song.title}`
+      `${song.singer} ${song.title} 반주 노래방`,
+      `노래방 ${song.title}`
     ];
 
     let videos = [];

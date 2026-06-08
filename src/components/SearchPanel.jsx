@@ -142,7 +142,7 @@ export default function SearchPanel({
           <div style={statusWrapperStyle}>
             <p style={{ color: 'var(--text-muted)' }}>
               {searchMode === 'db' 
-                ? "TJ 및 KY 노래방 수록곡 번호를 즉시 찾아보세요." 
+                ? "DB검색은 현재 안되요." 
                 : "유튜브의 노래방 반주 동영상을 다이렉트로 검색해 예약하세요."}
             </p>
           </div>

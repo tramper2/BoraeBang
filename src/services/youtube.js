@@ -34,10 +34,12 @@ function rotatePipedInstance() {
 }
 
 // Keywords that strongly indicate this is a KARAOKE / MR / instrumental track
+// NOTE: Company names (TJ미디어, 금영, KY) are excluded from positive keywords
+//       because their official videos are embed-blocked and cannot play outside YouTube.
 const KARAOKE_POSITIVE_KEYWORDS = [
-  '노래방', '반주', 'mr', 'karaoke', '금영', 'tj미디어', 'tj media',
-  'ky', '가라오케', 'instrumental', 'ar ver', 'mr ver', '반주ver',
-  '노래방버전', '코러스', '반주음악', 'minus one', '마이너스원'
+  '노래방', '반주', 'mr', 'karaoke', '가라오케', 'instrumental',
+  'ar ver', 'mr ver', '반주ver', '노래방버전', '코러스', '반주음악',
+  'minus one', '마이너스원'
 ];
 
 // Keywords that strongly indicate this is a COVER / vocal performance (not wanted)
@@ -172,8 +174,8 @@ export async function findEmbeddableVideo(videos) {
 
 function mapYoutubeApiResults(data) {
   if (!data || !Array.isArray(data.items)) return [];
-  
-  return data.items
+
+  const results = data.items
     .filter(item => item && item.id && item.id.videoId)
     .map(item => ({
       videoId: item.id.videoId,
@@ -181,6 +183,8 @@ function mapYoutubeApiResults(data) {
       thumbnail: item.snippet.thumbnails?.medium?.url || item.snippet.thumbnails?.high?.url || `https://img.youtube.com/vi/${item.id.videoId}/mqdefault.jpg`,
       author: item.snippet.channelTitle || 'YouTube'
     }));
+
+  return filterAndRankKaraoke(results);
 }
 
 /**
