@@ -4,8 +4,8 @@ import { Play, Pause, SkipForward, RotateCcw, Volume2, VolumeX } from 'lucide-re
 // Memoized container to prevent React from reconciling and destroying the YouTube iframe
 const YoutubePlayerContainer = React.memo(() => {
   return (
-    <div 
-      id="boraebang-yt-player" 
+    <div
+      id="boraebang-yt-player"
       style={{
         width: '100%',
         height: '100%',
@@ -32,7 +32,7 @@ export default function KaraokePlayer({
   const iframeWrapperId = 'boraebang-yt-player';
   const [playerLoaded, setPlayerLoaded] = useState(false);
   const [digitalTime, setDigitalTime] = useState('');
-  
+
   // Score screen states
   const [showScore, setShowScore] = useState(false);
   const [score, setScore] = useState(0);
@@ -63,7 +63,7 @@ export default function KaraokePlayer({
       } else {
         document.head.appendChild(tag);
       }
-      
+
       window.onYouTubeIframeAPIReady = () => {
         initPlayer();
       };
@@ -179,7 +179,7 @@ export default function KaraokePlayer({
         if (playerRef.current && typeof playerRef.current.getCurrentTime === 'function') {
           const currentTime = playerRef.current.getCurrentTime();
           const duration = playerRef.current.getDuration();
-          
+
           if (duration > 0) {
             // Verse 1 mode: Stop song when it reaches 60%
             if (isVerse1Mode && currentTime >= duration * 0.6) {
@@ -203,7 +203,7 @@ export default function KaraokePlayer({
     if (randomScore >= 98) msg = '🎉 천상의 목소리! 완벽합니다! 🎉';
     else if (randomScore >= 95) msg = '🎤 가수 뺨치는 실력이네요! 대박! 🎤';
     else if (randomScore >= 90) msg = '👍 멋진 가창력입니다! 한 번 더 도전?';
-    
+
     setScore(randomScore);
     setScoreMsg(msg);
     setShowScore(true);
@@ -219,7 +219,7 @@ export default function KaraokePlayer({
   useEffect(() => {
     const handleRemoteAction = (action) => {
       if (!playerRef.current || !playerLoaded) return;
-      
+
       try {
         switch (action) {
           case 'play':
@@ -265,7 +265,7 @@ export default function KaraokePlayer({
   return (
     <div className="crt-screen crt-flicker" style={playerScreenStyle}>
       {/* Target iframe element wrapper managed by React for visibility */}
-      <div 
+      <div
         style={{
           width: '100%',
           height: '100%',
@@ -285,7 +285,7 @@ export default function KaraokePlayer({
           <div style={neonCircleStyle}>
             <span style={digitalClockStyle}>{digitalTime}</span>
           </div>
-          
+
           <div style={infoBoxStyle}>
             <h1 className="text-neon-pink" style={{ fontFamily: 'var(--font-sans)', fontSize: '2.2rem', fontWeight: '900', letterSpacing: '2px' }}>
               🎤 보래방 🎤
@@ -294,12 +294,12 @@ export default function KaraokePlayer({
               반주기 대기 중... 노래를 예약해주세요
             </p>
             <div style={helpStyle}>
-              <span>1. 왼쪽에서 노래 제목이나 가수를 검색하세요.</span>
+              <span>1. 아래에서 노래 제목이나 가수를 검색하세요.</span>
               <span>2. 또는 리모컨에 번호를 직접 누르고 [예약]을 누르세요.</span>
               <span>3. 대기열에 노래가 추가되면 [시작]으로 노래방을 즐겨보세요!</span>
             </div>
           </div>
-          
+
           {/* Animated background waves to simulate standby visualizer */}
           <div style={waveContainerStyle}>
             <div className="wave" style={{ ...waveStyle, animationDelay: '0s' }}></div>

@@ -5,16 +5,16 @@ import { searchYouTube, filterAndRankKaraoke } from '../services/youtube';
 
 // Custom inline SVG Youtube icon due to brand icons missing in lucide-react 1.17
 const Youtube = ({ size = 18, ...props }) => (
-  <svg 
-    xmlns="http://www.w3.org/2000/svg" 
-    width={size} 
-    height={size} 
-    viewBox="0 0 24 24" 
-    fill="none" 
-    stroke="currentColor" 
-    strokeWidth="2" 
-    strokeLinecap="round" 
-    strokeLinejoin="round" 
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width={size}
+    height={size}
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
     {...props}
   >
     <path d="M2.5 17a24.12 24.12 0 0 1 0-10 2 2 0 0 1 1.4-1.4 49.56 49.56 0 0 1 16.2 0A2 2 0 0 1 21.5 7a24.12 24.12 0 0 1 0 10 2 2 0 0 1-1.4 1.4 49.56 49.56 0 0 1-16.2 0A2 2 0 0 1 2.5 17" />
@@ -23,15 +23,15 @@ const Youtube = ({ size = 18, ...props }) => (
 );
 
 
-export default function SearchPanel({ 
-  settings, 
-  favorites, 
+export default function SearchPanel({
+  settings,
+  favorites,
   onQueueSong, // (song, isPriority)
   onPlayNow, // (song)
-  onToggleFavorite 
+  onToggleFavorite
 }) {
   const [query, setQuery] = useState('');
-  const [searchMode, setSearchMode] = useState('db'); // 'db' or 'youtube'
+  const [searchMode, setSearchMode] = useState('youtube'); // 'db' or 'youtube'
   const [results, setResults] = useState([]);
   const [loading, setLoading] = useState(false);
   const [searched, setSearched] = useState(false);
@@ -52,8 +52,8 @@ export default function SearchPanel({
       } else {
         // Direct YouTube search: add MR/반주 keywords to prefer instrumental tracks
         const searchQuery = `노래방 MR ${trimmed}`;
-        const raw = await searchYouTube({ 
-          query: searchQuery, 
+        const raw = await searchYouTube({
+          query: searchQuery,
           apiKey: settings.youtubeApiKey,
           searchPipedOnly: settings.searchPipedOnly,
           customBackendUrl: settings.customBackendUrl
@@ -85,16 +85,16 @@ export default function SearchPanel({
     <div className="glass-panel" style={panelStyle}>
       {/* Search Header Tabs */}
       <div style={tabsStyle}>
-        <button 
-          className={searchMode === 'db' ? 'active' : ''} 
+        <button
+          className={searchMode === 'db' ? 'active' : ''}
           onClick={() => { setSearchMode('db'); setResults([]); setSearched(false); }}
           style={tabBtnStyle}
         >
           <Database size={14} style={{ marginRight: '6px' }} />
           노래방 DB 검색
         </button>
-        <button 
-          className={searchMode === 'youtube' ? 'active' : ''} 
+        <button
+          className={searchMode === 'youtube' ? 'active' : ''}
           onClick={() => { setSearchMode('youtube'); setResults([]); setSearched(false); }}
           style={tabBtnStyle}
         >
@@ -110,8 +110,8 @@ export default function SearchPanel({
             type="text"
             className="input-neon"
             placeholder={
-              searchMode === 'db' 
-                ? "곡 제목, 가수명 또는 곡 번호를 입력하세요..." 
+              searchMode === 'db'
+                ? "곡 제목, 가수명 또는 곡 번호를 입력하세요..."
                 : "검색어를 입력하세요 (자동으로 '노래방'이 접두사로 추가됩니다)..."
             }
             value={query}
@@ -141,8 +141,8 @@ export default function SearchPanel({
         {!loading && !searched && (
           <div style={statusWrapperStyle}>
             <p style={{ color: 'var(--text-muted)' }}>
-              {searchMode === 'db' 
-                ? "DB검색은 현재 안되요." 
+              {searchMode === 'db'
+                ? "DB검색은 현재 안되요."
                 : "유튜브의 노래방 반주 동영상을 다이렉트로 검색해 예약하세요."}
             </p>
           </div>
@@ -158,8 +158,8 @@ export default function SearchPanel({
                   <div key={`${song.brand}-${song.no}`} style={rowStyle}>
                     <div style={rowLeftStyle}>
                       <div style={metaStyle}>
-                        <span style={{ 
-                          ...badgeStyle, 
+                        <span style={{
+                          ...badgeStyle,
                           backgroundColor: song.brand === 'tj' ? 'rgba(255, 0, 127, 0.15)' : 'rgba(0, 240, 255, 0.15)',
                           color: song.brand === 'tj' ? 'var(--color-primary)' : 'var(--color-secondary)'
                         }}>
@@ -170,35 +170,35 @@ export default function SearchPanel({
                       <span style={songTitleStyle} title={song.title}>{song.title}</span>
                       <span style={singerStyle} title={song.singer}>{song.singer}</span>
                     </div>
-                    
+
                     <div style={rowActionsStyle}>
                       {/* Favorite star */}
-                      <button 
-                        onClick={() => onToggleFavorite(song)} 
+                      <button
+                        onClick={() => onToggleFavorite(song)}
                         style={{ ...rowActionBtnStyle, color: fav ? 'var(--color-accent)' : 'var(--text-muted)' }}
                         title="애창곡 등록/해제"
                       >
                         <Star size={16} fill={fav ? 'var(--color-accent)' : 'transparent'} />
                       </button>
                       {/* Queue */}
-                      <button 
-                        onClick={() => handleDbQueue(song, false)} 
+                      <button
+                        onClick={() => handleDbQueue(song, false)}
                         style={rowActionBtnStyle}
                         title="예약"
                       >
                         <Plus size={16} />
                       </button>
                       {/* Priority queue */}
-                      <button 
-                        onClick={() => handleDbQueue(song, true)} 
+                      <button
+                        onClick={() => handleDbQueue(song, true)}
                         style={rowActionBtnStyle}
                         title="우선예약"
                       >
                         <ListMusic size={16} />
                       </button>
                       {/* Play Now */}
-                      <button 
-                        onClick={() => handleDbPlayNow(song)} 
+                      <button
+                        onClick={() => handleDbPlayNow(song)}
                         style={rowActionPlayBtnStyle}
                         title="즉시 재생"
                       >
@@ -217,8 +217,8 @@ export default function SearchPanel({
                     <span style={ytTitleStyle} title={video.title}>{video.title}</span>
                     <span style={ytChannelStyle}>{video.author}</span>
                     <div style={ytActionsStyle}>
-                      <button 
-                        className="btn-neon btn-neon-cyan" 
+                      <button
+                        className="btn-neon btn-neon-cyan"
                         onClick={() => onQueueSong({
                           brand: 'youtube',
                           no: 'YT',
@@ -231,8 +231,8 @@ export default function SearchPanel({
                       >
                         <Plus size={12} /> 예약
                       </button>
-                      <button 
-                        className="btn-neon" 
+                      <button
+                        className="btn-neon"
                         onClick={() => onQueueSong({
                           brand: 'youtube',
                           no: 'YT',
@@ -245,8 +245,8 @@ export default function SearchPanel({
                       >
                         <ListMusic size={12} /> 우선예약
                       </button>
-                      <button 
-                        className="btn-neon btn-neon-cyan" 
+                      <button
+                        className="btn-neon btn-neon-cyan"
                         onClick={() => onPlayNow({
                           brand: 'youtube',
                           no: 'YT',
@@ -440,9 +440,9 @@ const rowActionPlayBtnStyle = {
   background: 'var(--color-secondary)',
   borderColor: 'var(--color-secondary)',
   color: '#000',
-  ':hover': { 
-    background: '#00d2ff', 
-    boxShadow: 'var(--glow-cyan)' 
+  ':hover': {
+    background: '#00d2ff',
+    boxShadow: 'var(--glow-cyan)'
   }
 };
 
