@@ -1,4 +1,4 @@
-# BoraeBang 개발 태스크 리스트 (완료)
+# BoraeBang 개발 태스크 리스트
 
 - [x] 패키지 설치 및 환경 구성
   - [x] React, React-DOM, Vite 플러그인, Lucide-React, gh-pages 설치
@@ -22,3 +22,8 @@
   - [x] `npm run build` 빌드 검증
   - [x] 로컬 실행 및 작동 테스트
   - [x] git 및 gh-pages 배포 테스트 (`git@github.com:tramper2/BoraeBang.git`)
+- [x] ArtractiveAPI CORS 연동
+  - [x] `server.js` 내 글로벌 CORS 구성 (동적 Origin 반환 및 Credentials 허용)
+  - [x] 기존 API 개별 라우트 CORS 미들웨어 제거 및 통합 리팩토링
+  - [x] local/WSL 테스트 기동 및 preflight CORS 응답 헤더 정상 동작 검증
+  - [x] Git 커밋 및 원격 저장소 (`git@github.com:tramper2/ArtractiveAPI.git`) push 완료

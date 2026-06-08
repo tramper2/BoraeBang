@@ -1,4 +1,4 @@
-# 🎤 보래방(BoraeBang) 개발 완료 보고서 (Walkthrough)
+# 🎤 BoraeBang (보래방) 개발 완료 보고서 (Walkthrough)
 
 유튜브 반주 영상을 활용하여 실제 노래방 기기와 동일한 사용자 경험을 제공하는 프리미엄 노래방 웹 애플리케이션 **보래방(BoraeBang)** 개발 및 배포를 완료했습니다.
 
@@ -32,7 +32,7 @@
 
 ## 📁 파일 변경 사항 목록
 
-모든 파일은 [\\wsl.localhost\Ubuntu\home\tramp\projects\Noraebang](file:///wsl.localhost/Ubuntu/home/tramp/projects/Noraebang) 작업 디렉토리 하위에 새롭게 생성되었습니다.
+모든 파일은 [\wsl.localhost\Ubuntu\home\tramp\projects\Noraebang](file:///wsl.localhost/Ubuntu/home/tramp/projects/Noraebang) 작업 디렉토리 하위에 새롭게 생성되었습니다.
 
 *   [package.json](file:///wsl.localhost/Ubuntu/home/tramp/projects/Noraebang/package.json): Vite 개발 서버 실행, 빌드 및 GitHub Pages 배포 스크립트(`deploy`)를 세팅하고 라이브러리를 설치했습니다.
 *   [vite.config.js](file:///wsl.localhost/Ubuntu/home/tramp/projects/Noraebang/vite.config.js): GitHub Pages의 리포지토리별 서브디렉토리 경로를 고려하여 `base: './'` 상대경로 빌드 설정을 제공합니다.
@@ -59,4 +59,25 @@
    - `dist/index.html` (1.37 kB), `dist/assets/index-CF5zhNDx.css` (4.24 kB), `dist/assets/index-uEbiHEK9.js` (243.85 kB) 빌드 생성을 완료했습니다.
 2. **GitHub Pages 실시간 배포**:
    - `npm run deploy` 명령을 성공적으로 실행하여 지정하신 원격 저장소(`git@github.com:tramper2/BoraeBang.git`)의 `gh-pages` 브랜치로 빌드 결과물(dist 폴더) 업로드를 완료했습니다.
-   - **배포 주소**: `https://tramper2.github.io/BoraeBang/`
+   - **배포 주소**: [https://tramper2.github.io/BoraeBang/](https://tramper2.github.io/BoraeBang/) (배포 주소 반영 후 접속 가능)
+
+---
+
+## 🔒 ArtractiveAPI CORS 기능 추가 완료
+
+`ArtractiveAPI` 프로젝트([ArtractiveAPI](file:///wsl.localhost/Ubuntu/home/tramp/projects/ArtractiveAPI))에 다른 오리진(Multi-origin)에서 게임 및 관리자 대시보드를 자유롭게 연동할 수 있도록 글로벌 CORS 설정을 성공적으로 구축하고 커밋/푸시를 완료했습니다.
+
+1. **글로벌 CORS 미들웨어 적용**:
+   - [server.js](file:///wsl.localhost/Ubuntu/home/tramp/projects/ArtractiveAPI/server.js#L75-L85)에 `cors` 패키지를 전역 미들웨어로 주입했습니다.
+   - 요청 헤더에 들어오는 Origin을 그대로 반환(Dynamic Echo)하도록 origin 함수를 정의하여 모든 도메인에서의 다중 origin 요청에 대응하도록 설계했습니다.
+   - 세션 쿠키/자격 증명을 동반한 API 통신이 가능하도록 `credentials: true` 옵션을 포함했습니다.
+   - 지원 메서드: `GET`, `POST`, `PUT`, `DELETE`, `OPTIONS`
+   - 지원 헤더: `Content-Type`, `Authorization`, `x-api-key`
+   - 브라우저의 preflight 캐시 유효기간(`maxAge`)을 `86400`초(24시간)로 극대화하여 예비 요청의 오버헤드를 최소화했습니다.
+
+2. **기존 API 경로별 중복 CORS 미들웨어 제거**:
+   - `/api/v1/leaderboard` 및 `/api/v1/visitor/count` 등 개별 라우트에 선언되어 있던 부분적 `publicCorsOptions` 미들웨어를 제거하여 라우터의 코드 복잡도를 낮추고 글로벌 레벨에서 보안 통제를 통합 관리하도록 리팩토링했습니다.
+
+3. **로컬 검증 및 배포 완료**:
+   - WSL 환경에서 API 서버를 기동하고 `curl.exe`를 사용해 크로스 오리진 preflight (`OPTIONS`) 요청을 보내 `Access-Control-Allow-Origin: http://example.com`, `Access-Control-Allow-Credentials: true` 등 필수 헤더가 완벽히 응답됨을 확인했습니다.
+   - 변경된 소스코드를 스테이징 및 커밋하고, 지정된 원격 저장소([ArtractiveAPI.git](git@github.com:tramper2/ArtractiveAPI.git))의 `main` 브랜치로 푸시를 마쳤습니다.
