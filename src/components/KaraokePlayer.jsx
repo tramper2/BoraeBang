@@ -1,6 +1,22 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Play, Pause, SkipForward, RotateCcw, Volume2, VolumeX } from 'lucide-react';
 
+// Memoized container to prevent React from reconciling and destroying the YouTube iframe
+const YoutubePlayerContainer = React.memo(() => {
+  return (
+    <div 
+      id="boraebang-yt-player" 
+      style={{
+        width: '100%',
+        height: '100%',
+        position: 'absolute',
+        top: 0,
+        left: 0
+      }}
+    ></div>
+  );
+});
+
 export default function KaraokePlayer({
   currentSong,
   tempo,
@@ -41,7 +57,11 @@ export default function KaraokePlayer({
       const tag = document.createElement('script');
       tag.src = 'https://www.youtube.com/iframe_api';
       const firstScriptTag = document.getElementsByTagName('script')[0];
-      firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+      if (firstScriptTag && firstScriptTag.parentNode) {
+        firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+      } else {
+        document.head.appendChild(tag);
+      }
       
       window.onYouTubeIframeAPIReady = () => {
         initPlayer();
@@ -231,9 +251,8 @@ export default function KaraokePlayer({
 
   return (
     <div className="crt-screen crt-flicker" style={playerScreenStyle}>
-      {/* Target iframe element for YouTube IFrame API */}
+      {/* Target iframe element wrapper managed by React for visibility */}
       <div 
-        id={iframeWrapperId} 
         style={{
           width: '100%',
           height: '100%',
@@ -242,7 +261,10 @@ export default function KaraokePlayer({
           top: 0,
           left: 0
         }}
-      ></div>
+      >
+        <YoutubePlayerContainer />
+      </div>
+
 
       {/* Standby/Clock Screen (Visible when no song is playing) */}
       {!currentSong && !showScore && (
