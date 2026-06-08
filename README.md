@@ -84,15 +84,44 @@ npm run dev
 기본 포트 `http://localhost:3000`으로 로컬 개발 서버가 구동되며 브라우저가 자동 실행됩니다.
 
 ### 3. 정적 빌드 및 배포
+
+#### 빌드
 프로덕션용 배포본을 빌드하려면 다음 명령을 사용합니다.
 ```bash
 npm run build
 ```
-빌드된 파일은 `dist/` 폴더에 위치하며, 아래 명령으로 GitHub Pages에 배포할 수 있습니다.
+빌드된 파일은 `dist/` 폴더에 위치합니다.
+
+#### GitHub Pages 배포
+빌드 후 GitHub Pages에 배포하려면 아래 명령을 사용합니다.
+`deploy` 스크립트는 `predeploy`로 빌드를 자동 수행한 뒤 `gh-pages` 브랜치에 푸시합니다.
 ```bash
 npm run deploy
 ```
-*설정된 배포 저장소: `git@github.com:tramper2/BoraeBang.git`의 `gh-pages` 브랜치*
+
+#### 수동 배포 절차 (전체 흐름)
+코드 변경 후 배포까지의 전체 과정은 다음과 같습니다.
+```bash
+# 1. 변경사항 커밋
+git add -A
+git commit -m "feat: 변경 내용 요약"
+
+# 2. 원격 저장소에 푸시 (소스코드)
+git push origin master
+
+# 3. GitHub Pages 배포 (빌드 + gh-pages 브랜치 푸시 자동 수행)
+npm run deploy
+```
+
+| 명령어 | 동작 |
+|--------|------|
+| `npm run build` | Vite 프로덕션 빌드 → `dist/` 폴더 생성 |
+| `npm run deploy` | 빌드 자동 수행 후 `dist/` 내용을 `gh-pages` 브랜치에 푸시 |
+| `npm run dev` | 로컬 개발 서버 구동 (`http://localhost:3000`) |
+
+- **배포 저장소**: `git@github.com:tramper2/BoraeBang.git`의 `gh-pages` 브랜치
+- **배포 주소**: https://tramper2.github.io/BoraeBang/
+- 배포 후 GitHub Pages 반영까지 최대 1~2분 소요될 수 있습니다.
 
 ---
 
