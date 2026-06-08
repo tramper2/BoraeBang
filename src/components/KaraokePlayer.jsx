@@ -291,7 +291,8 @@ export default function KaraokePlayer({
 // Inline Styles for Player Screen
 const playerScreenStyle = {
   width: '100%',
-  paddingBottom: '56.25%', // 16:9 Aspect Ratio
+  aspectRatio: '16/9',
+  maxHeight: '45vh', // Prevent player from taking too much vertical space on wide screens
   position: 'relative',
   background: '#05050f',
   overflow: 'hidden'
