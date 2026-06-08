@@ -27,3 +27,20 @@
   - [x] 기존 API 개별 라우트 CORS 미들웨어 제거 및 통합 리팩토링
   - [x] local/WSL 테스트 기동 및 preflight CORS 응답 헤더 정상 동작 검증
   - [x] Git 커밋 및 원격 저장소 (`git@github.com:tramper2/ArtractiveAPI.git`) push 완료
+- [x] CORS 우회 및 YouTube 검색 안정화
+  - [x] `fetchWithCorsProxy()` 구현 — 직접 fetch → corsproxy.io → allorigins.win 순서 폴백
+  - [x] Piped API 응답 파싱 개선 (`items`, `results`, 배열 포맷 다중 대응)
+  - [x] YouTube IFrame 에러 코드별 처리 분기 (101/150 임베드 차단 감지)
+- [x] 임베드 차단 영상 자동 필터링
+  - [x] `checkEmbeddable(videoId)` — YouTube oEmbed API로 임베드 가능 여부 사전 확인
+  - [x] `findEmbeddableVideo(videos)` — 후보 목록에서 임베드 가능한 첫 영상 반환
+  - [x] `App.jsx` `resolveYoutubeVideo()` — 임베드 가능 영상 찾을 때까지 후보 순회
+  - [x] `KaraokePlayer.jsx` 에러 101/150 발생 시 `onEmbedError` 콜백 호출로 자동 스킵
+  - [x] 하단 주황색 토스트 알림 UI 추가 (`embedToastStyle`)
+- [x] 커버곡 필터링 및 MR/반주 우선 정렬
+  - [x] `KARAOKE_POSITIVE_KEYWORDS` / `KARAOKE_NEGATIVE_KEYWORDS` 목록 정의
+  - [x] `scoreKaraokeRelevance(title, author)` — 제목·채널명 기반 점수 산정 함수
+  - [x] `filterAndRankKaraoke(videos)` — 점수 -20 이하 제거 후 높은 순으로 정렬
+  - [x] `mapPipedResults()` 내부에서 `filterAndRankKaraoke` 자동 적용
+  - [x] `App.jsx` 4단계 검색 전략 도입 (MR 명시 → 반주 → 가수 MR → 브로드 폴백)
+  - [x] `SearchPanel.jsx` 유튜브 직접 검색 쿼리를 `노래방 MR ${검색어}` 로 변경
