@@ -79,8 +79,9 @@ export default function App() {
     const brandName = (song.brand || settings.brand).toUpperCase();
     const no = song.no;
 
-    // Search query 1: "TJ 12345"
-    let searchQuery = `${brandName} ${no}`;
+    // Search query 1: "TJ 12345 서쪽하늘"
+    let searchQuery = `${brandName} ${no} ${song.title}`;
+
     let videos = [];
     try {
       videos = await searchYouTube({
