@@ -74,7 +74,7 @@ export default function App() {
    * Priority 2: Search brand + singer + title
    */
   const resolveYoutubeVideo = async (song) => {
-    // If the song already has a videoId, check it's embeddable first
+    // If the song already has a videoId, return it directly
     if (song.videoId) {
       return song;
     }
@@ -82,38 +82,41 @@ export default function App() {
     const brandName = (song.brand || settings.brand).toUpperCase();
     const no = song.no;
 
-    // Search query 1: "TJ 12345 서쪽하늘"
-    let searchQuery = `${brandName} ${no} ${song.title}`;
+    // --- 4-stage search strategy (narrowest → broadest, MR-first) ---
+    // Stage 1: "[TJ] [번호] [제목] MR"  ← most precise, explicitly requests MR
+    // Stage 2: "[TJ] 노래방 [제목] 반주" ← brand + title + 반주
+    // Stage 3: "노래방 [가수] [제목] MR" ← no brand constraint
+    // Stage 4: "[TJ] 노래방 [제목]"      ← last resort (broadest)
+
+    const searchStrategies = [
+      `${brandName} ${no} ${song.title} MR`,
+      `${brandName} 노래방 ${song.title} 반주`,
+      `노래방 ${song.singer} ${song.title} MR`,
+      `${brandName} 노래방 ${song.title}`
+    ];
 
     let videos = [];
-    try {
-      videos = await searchYouTube({
-        query: searchQuery,
-        apiKey: settings.youtubeApiKey,
-        searchPipedOnly: settings.searchPipedOnly,
-        customBackendUrl: settings.customBackendUrl
-      });
-    } catch (e) {
-      console.warn('First query failed, trying search query 2...');
-    }
 
-    // If query 1 returns nothing, try search query 2: "TJ 노래방 아이유 밤편지"
-    if (videos.length === 0) {
-      searchQuery = `${brandName} 노래방 ${song.singer} ${song.title}`;
+    for (const [idx, searchQuery] of searchStrategies.entries()) {
       try {
-        videos = await searchYouTube({
+        const results = await searchYouTube({
           query: searchQuery,
           apiKey: settings.youtubeApiKey,
           searchPipedOnly: settings.searchPipedOnly,
           customBackendUrl: settings.customBackendUrl
         });
+        if (results.length > 0) {
+          videos = results;
+          console.log(`[BoraeBang] Found results on strategy ${idx + 1}: "${searchQuery}"`);
+          break;
+        }
       } catch (e) {
-        console.error('Failed to resolve video on both queries:', e);
+        console.warn(`Search strategy ${idx + 1} failed:`, e.message);
       }
     }
 
     if (videos.length > 0) {
-      // Find first embeddable video from all candidates
+      // Find first embeddable video from ranked candidates
       const embeddable = await findEmbeddableVideo(videos);
       if (embeddable) {
         return {
@@ -122,30 +125,10 @@ export default function App() {
           thumbnail: embeddable.thumbnail
         };
       }
-      // All results are embed-blocked: try a broader search query
-      console.warn('[BoraeBang] All candidates embed-blocked, trying broader search...');
-      const fallbackQuery = `${brandName} 노래방 ${song.title} 반주`;
-      try {
-        const fallbackVideos = await searchYouTube({
-          query: fallbackQuery,
-          apiKey: settings.youtubeApiKey,
-          searchPipedOnly: settings.searchPipedOnly,
-          customBackendUrl: settings.customBackendUrl
-        });
-        const fallbackEmbeddable = await findEmbeddableVideo(fallbackVideos);
-        if (fallbackEmbeddable) {
-          return {
-            ...song,
-            videoId: fallbackEmbeddable.videoId,
-            thumbnail: fallbackEmbeddable.thumbnail
-          };
-        }
-      } catch (e) {
-        console.error('Fallback search also failed:', e);
-      }
+      // All results are embed-blocked
       throw new Error('모든 검색 결과의 영상이 외부 재생 차단되어 있습니다.\n다른 곡을 선택하거나 직접 유튜브에서 검색해주세요.');
     } else {
-      throw new Error('노래방 영상을 찾을 수 없습니다.');
+      throw new Error('노래방 반주 영상을 찾을 수 없습니다.');
     }
   };
 

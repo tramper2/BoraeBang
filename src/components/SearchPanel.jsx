@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Search, Star, Plus, Play, ListMusic, Loader, Database } from 'lucide-react';
 import { searchKaraoke } from '../services/manana';
-import { searchYouTube } from '../services/youtube';
+import { searchYouTube, filterAndRankKaraoke } from '../services/youtube';
 
 // Custom inline SVG Youtube icon due to brand icons missing in lucide-react 1.17
 const Youtube = ({ size = 18, ...props }) => (
@@ -50,15 +50,16 @@ export default function SearchPanel({
         const data = await searchKaraoke({ query: trimmed, brand: settings.brand });
         setResults(data);
       } else {
-        // Direct YouTube search: query prefixed with default search helpers
-        const searchQuery = `노래방 ${trimmed}`;
-        const data = await searchYouTube({ 
+        // Direct YouTube search: add MR/반주 keywords to prefer instrumental tracks
+        const searchQuery = `노래방 MR ${trimmed}`;
+        const raw = await searchYouTube({ 
           query: searchQuery, 
           apiKey: settings.youtubeApiKey,
           searchPipedOnly: settings.searchPipedOnly,
           customBackendUrl: settings.customBackendUrl
         });
-        setResults(data);
+        // Apply karaoke ranking on top of API-level ranking
+        setResults(filterAndRankKaraoke(raw));
       }
     } catch (error) {
       console.error('Search error:', error);

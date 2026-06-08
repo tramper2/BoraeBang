@@ -33,6 +33,64 @@ function rotatePipedInstance() {
   return PIPED_INSTANCES[activeInstanceIndex];
 }
 
+// Keywords that strongly indicate this is a KARAOKE / MR / instrumental track
+const KARAOKE_POSITIVE_KEYWORDS = [
+  '노래방', '반주', 'mr', 'karaoke', '금영', 'tj미디어', 'tj media',
+  'ky', '가라오케', 'instrumental', 'ar ver', 'mr ver', '반주ver',
+  '노래방버전', '코러스', '반주음악', 'minus one', '마이너스원'
+];
+
+// Keywords that strongly indicate this is a COVER / vocal performance (not wanted)
+const KARAOKE_NEGATIVE_KEYWORDS = [
+  '커버', 'cover', 'cover by', 'covered by', '부른', '직접',
+  '노래해', '노래함', '가창', '翻唱', '歌ってみた', 'uta',
+  '남성ver', '여성ver', '남자ver', '여자ver', '라이브', 'live',
+  '리액션', 'reaction', '오디션', 'audition', '경연',
+  '직캠', 'fancam', 'fan cam', 'mv', 'm/v', '뮤직비디오',
+  'music video', '풀버전 보컬', '보컬ver'
+];
+
+/**
+ * Score a video title for karaoke/MR relevance.
+ * Higher = more likely to be a backing track, lower = likely a cover.
+ * @param {string} title
+ * @param {string} author
+ * @returns {number} score (can be negative)
+ */
+export function scoreKaraokeRelevance(title, author = '') {
+  const combined = (title + ' ' + author).toLowerCase();
+  let score = 0;
+
+  for (const kw of KARAOKE_POSITIVE_KEYWORDS) {
+    if (combined.includes(kw.toLowerCase())) score += 10;
+  }
+  for (const kw of KARAOKE_NEGATIVE_KEYWORDS) {
+    if (combined.includes(kw.toLowerCase())) score -= 20;
+  }
+
+  // Official TJ / KY channels get a bonus
+  const authorLower = author.toLowerCase();
+  if (authorLower.includes('tj') || authorLower.includes('금영') || authorLower.includes('ky')) {
+    score += 15;
+  }
+
+  return score;
+}
+
+/**
+ * Filter and sort a video list to prefer karaoke/MR tracks over covers.
+ * Videos with very negative scores (clearly covers) are removed entirely.
+ * @param {Array} videos
+ * @returns {Array}
+ */
+export function filterAndRankKaraoke(videos) {
+  return videos
+    .map(v => ({ ...v, _score: scoreKaraokeRelevance(v.title, v.author) }))
+    .filter(v => v._score > -20)  // Remove strong cover matches
+    .sort((a, b) => b._score - a._score)
+    .map(({ _score, ...v }) => v); // Strip internal score field
+}
+
 /**
  * Clean search results into standard schema:
  * { videoId, title, thumbnail, author }
@@ -41,7 +99,7 @@ function mapPipedResults(data) {
   const items = data.items || data.results || (Array.isArray(data) ? data : []);
   if (!Array.isArray(items)) return [];
   
-  return items
+  const results = items
     .filter(item => item && (item.type === 'video' || item.type === 'stream'))
     .map(item => {
       let videoId = item.videoId;
@@ -64,6 +122,8 @@ function mapPipedResults(data) {
       };
     })
     .filter(item => item.videoId);
+
+  return filterAndRankKaraoke(results);
 }
 
 /**
