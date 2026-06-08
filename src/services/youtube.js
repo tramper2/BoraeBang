@@ -5,6 +5,7 @@
 
 // List of public Piped API instances to fallback
 export const PIPED_INSTANCES = [
+  'https://api.piped.private.coffee',
   'https://pipedapi.kavin.rocks',
   'https://pipedapi.moomoo.me',
   'https://pipedapi.tokhmi.xyz',
